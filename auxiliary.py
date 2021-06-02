@@ -383,7 +383,7 @@ def example_split(X, y, folds=2):
 
     display(f'total x shape: {X.shape}')
     display(f'total y shape: {y.shape}')
-    display(f'train X shape with {folds-1}/{folds} samples: {X_train_num.shape}')
+    display(f'train X shape with {folds - 1}/{folds} samples: {X_train_num.shape}')
     display(f'train y shape: {y_train.shape}')
     display(f'train X shape with 1/{folds} samples: {X_test_num.shape}')
     display(f'test y shape: {y_test.shape}')
@@ -404,6 +404,7 @@ def example_split(X, y, folds=2):
     return
 
 
+# snipped from hw5
 def cache_mount(seed):
     # taken from 623 hw5_solution
     letters = list(string.ascii_lowercase)
@@ -418,28 +419,94 @@ def cache_mount(seed):
     return cache_store
 
 
-def rfc_search(X_train, y_train, seed=42, folds=5):
+# snipped and modified from hw5
+def model_search(X_train, y_train, model='rfc', seed=42, folds=5):
+    cache_store = cache_mount(seed)
 
-    # cache_store = cache_mount(seed)
-    #
-    # pipeline = Pipeline(steps=[
-    #     ('rfc', RandomForestClassifier())
-    # ], memory=cache_store)
+    if model == 'rfc':
+        pipeline = Pipeline(steps=[
+            ('rfc', RandomForestClassifier(random_state=seed))
+        ], memory=cache_store)
+        param_grid = {
+            'rfc__n_estimators': [100, 200, 300],
+            'rfc__max_depth': [3, 7, 9, 13, 15],
+            'rfc__min_samples_split': [2, 4, 8],
+            'rfc__bootstrap': [False, True],
+            'rfc__max_samples': [0.3, 0.6, 0.9, None]
+        }
+    elif model == 'logreg':
+        pipeline = Pipeline(steps=[
+            ('logreg', LogisticRegression(random_state=seed))
+        ], memory=cache_store)
+        param_grid = {
+            'logreg__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
+            'logreg__max_iter': [100, 250, 500],
+            'logreg__multi_class': ['auto']
+        }
 
-    param_grid ={
-        # 'rfc__n_estimators': [100, 200],
-        'rfc__max_depth': [3, 5, 7, 9, 11, 13],
-        # 'rfc__min_samples_split': [2, 4, 8],
-        # 'rfc__bootstrap': [False, True],
-        # 'rfc__max_samples': [0.3, 0.6, 1.0]
-    }
-    rfc = RandomForestClassifier(random_state=seed, max_features='sqrt', min_samples_leaf=1, criterion='gini')
-    grid_search = GridSearchCV(rfc, param_grid, n_jobs=1, verbose=4, cv=StratifiedKFold(n_splits=folds))
-    # grid_search = HalvingGridSearchCV(pipeline, param_grid, n_jobs=1, verbose=4, cv=StratifiedKFold(n_splits=folds))
-    # grid_search = GridSearchCV(pipeline, param_grid, n_jobs=1, verbose=4, cv=StratifiedKFold(n_splits=folds))
+    elif model == 'mnb':
+        pipeline = Pipeline(steps=[
+            ('mnb', MultinomialNB())
+        ], memory=cache_store)
+        param_grid = {
+            'mnb__alpha': np.arange(0,1.01,0.01)
+        }
+    else:
+        print('No model specified, so no search will initiate.')
+        return
+
+    grid_search = HalvingGridSearchCV(pipeline, param_grid, n_jobs=1, verbose=5, cv=folds)
 
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', UserWarning)
         grid_search.fit(X_train, y_train)
 
     return grid_search
+
+
+# snipped from hw5
+def display_search_results(grid_search, filename):
+    df = pd.DataFrame(columns=['mean_test', '2xstd_test', 'mean_train', '2xstd_train', 'params'])
+    means_test = grid_search.cv_results_['mean_test_score']
+    stds_test = grid_search.cv_results_['std_test_score']
+    means_train = grid_search.cv_results_['mean_train_score']
+    stds_train = grid_search.cv_results_['std_train_score']
+    for mean_test, std_test, mean_train, std_train, params in zip(means_test, stds_test, means_train, stds_train,
+                                                                  grid_search.cv_results_['params']):
+        # print("%0.3f (+/-%0.03f) for %r"
+        #         % (mean_train, std * 2, params))
+        df.loc[len(df.index)] = [mean_test, 2 * std_test, mean_train, 2 * std_train, params]
+
+    best_loc = np.nanargmax(means_test)
+    print(
+        f'Best: {means_test[best_loc]:.3f} (+/-{stds_test[best_loc] * 2:.3f}) for {grid_search.cv_results_["params"][best_loc]}')
+
+    with pd.option_context("display.max_colwidth", 1000):
+        display(df.sort_values(by='mean_test', ascending=False))
+
+    if filename:
+        df.to_pickle(filename)
+
+    return df
+
+
+# snipped from hw5
+def show_conf_matrix(y_train, y_train_pred):
+    labels = np.arange(32)
+    conf_mx = confusion_matrix(y_train, y_train_pred)
+    row_sums = conf_mx.sum(axis=1, keepdims=True)
+    norm_conf_mx = conf_mx / row_sums  # np.max(conf_mx) #row_sums
+    figure = plt.figure(figsize=(20, 15))
+    axes = figure.add_subplot(111)
+    caxes = axes.matshow(norm_conf_mx)  # cmap=plt.cm.gray)
+    figure.colorbar(caxes)
+    axes.set_xticks(np.arange(len(labels)))
+    axes.set_yticks(np.arange(len(labels)))
+    axes.set_xlabel('Predicted Class', fontsize='x-large', fontweight='bold', labelpad=25)
+    axes.set_ylabel('True Class', fontsize='x-large', fontweight='bold')
+
+    for (row, col), z in np.ndenumerate(norm_conf_mx):
+        axes.text(col, row, '{:.0%}'.format(z), ha='center', va='center', color=[168 / 255, 74 / 255, 50 / 255],
+                  fontsize='large', fontweight='bold')
+
+    plt.show()
