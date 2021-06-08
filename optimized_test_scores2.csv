@@ -1,0 +1,5 @@
+,,,,,
+,Model Name,Model Parameters,Mean Train Score,Mean Validation Score,F1 Micro-Averaged Test Scores
+0,Random Forest Classifier,"{'bootstrap': False, 'ccp_alpha': 0.0, 'class_weight': None, 'criterion': 'gini', 'max_depth': 17, 'max_features': 'auto', 'max_leaf_nodes': None, 'max_samples': 0.6, 'min_impurity_decrease': 0.0, 'min_impurity_split': None, 'min_samples_leaf': 1, 'min_samples_split': 8, 'min_weight_fraction_leaf': 0.0, 'n_estimators': 300, 'n_jobs': None, 'oob_score': False, 'random_state': 421, 'verbose': 0, 'warm_start': False}",0.893981,0.652604,0.650970
+1,Multinomial Naive Bayes,"{'alpha': 0.34, 'class_prior': None, 'fit_prior': True}",0.879398,0.636979,0.675900
+2,Logistic Regression,"{'C': 1.0, 'class_weight': None, 'dual': False, 'fit_intercept': True, 'intercept_scaling': 1, 'l1_ratio': None, 'max_iter': 500, 'multi_class': 'auto', 'n_jobs': None, 'penalty': 'l2', 'random_state': 421, 'solver': 'sag', 'tol': 0.0001, 'verbose': 0, 'warm_start': False}",0.950116,0.705729,0.739612

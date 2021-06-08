@@ -229,8 +229,8 @@ def visualize_rf(model, ynames):
                     rounded=True, proportion=False,
                     precision=2, filled=True)
 
-    call(['dot', '-Tpng', 'tree.dot', '-o', 'tree.png', '-Gdpi=600'])
-    Image(filename='tree.png')
+    # call(['dot', '-Tpng', 'tree.dot', '-o', 'tree.png', '-Gdpi=600'])
+    # Image(filename='tree.png')
     (graph,) = pydot.graph_from_dot_file(img_dot)
     graph.write_png(img_png)
     graph.draw(img_png)
@@ -428,10 +428,10 @@ def model_search(X_train, y_train, model='rfc', seed=42, folds=5):
             ('rfc', RandomForestClassifier(random_state=seed))
         ], memory=cache_store)
         param_grid = {
-            'rfc__n_estimators': [100, 200, 300],
-            'rfc__max_depth': [3, 7, 9, 13, 15],
+            'rfc__n_estimators': [100, 300, 500],
+            'rfc__max_depth': [3, 7, 9, 13, 15, 17],
             'rfc__min_samples_split': [2, 4, 8],
-            'rfc__bootstrap': [False, True],
+            'rfc__bootstrap': [False],
             'rfc__max_samples': [0.3, 0.6, 0.9, None]
         }
     elif model == 'logreg':
@@ -439,7 +439,7 @@ def model_search(X_train, y_train, model='rfc', seed=42, folds=5):
             ('logreg', LogisticRegression(random_state=seed))
         ], memory=cache_store)
         param_grid = {
-            'logreg__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
+            'logreg__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag'],
             'logreg__max_iter': [100, 250, 500],
             'logreg__multi_class': ['auto']
         }
@@ -449,7 +449,7 @@ def model_search(X_train, y_train, model='rfc', seed=42, folds=5):
             ('mnb', MultinomialNB())
         ], memory=cache_store)
         param_grid = {
-            'mnb__alpha': np.arange(0,1.01,0.01)
+            'mnb__alpha': np.arange(0, 1.01, 0.01)
         }
     else:
         print('No model specified, so no search will initiate.')
@@ -491,22 +491,42 @@ def display_search_results(grid_search, filename):
 
 
 # snipped from hw5
-def show_conf_matrix(y_train, y_train_pred):
-    labels = np.arange(32)
+def show_conf_matrix(y_train, y_train_pred, num_classes=32, zero_diag=False, title='', file='', ylabels=[]):
+    labels = np.arange(num_classes)
     conf_mx = confusion_matrix(y_train, y_train_pred)
+    if zero_diag:
+        np.fill_diagonal(conf_mx, 0)
     row_sums = conf_mx.sum(axis=1, keepdims=True)
     norm_conf_mx = conf_mx / row_sums  # np.max(conf_mx) #row_sums
     figure = plt.figure(figsize=(20, 15))
     axes = figure.add_subplot(111)
-    caxes = axes.matshow(norm_conf_mx)  # cmap=plt.cm.gray)
+    caxes = axes.matshow(norm_conf_mx, cmap=plt.cm.Blues)
     figure.colorbar(caxes)
+
     axes.set_xticks(np.arange(len(labels)))
     axes.set_yticks(np.arange(len(labels)))
+    if ylabels:
+        axes.set_yticklabels(ylabels)
     axes.set_xlabel('Predicted Class', fontsize='x-large', fontweight='bold', labelpad=25)
     axes.set_ylabel('True Class', fontsize='x-large', fontweight='bold')
 
     for (row, col), z in np.ndenumerate(norm_conf_mx):
-        axes.text(col, row, '{:.0%}'.format(z), ha='center', va='center', color=[168 / 255, 74 / 255, 50 / 255],
+        axes.text(col, row+0.2, '{:.0%}'.format(z), ha='center', va='center', color=[168 / 255, 74 / 255, 50 / 255],
                   fontsize='large', fontweight='bold')
+    for (row, col), z in np.ndenumerate(conf_mx):
+        axes.text(col, row-0.2, z, ha='center', va='center', color=[168 / 255, 74 / 255, 50 / 255],
+                  fontsize='large', fontweight='bold')
+    plt.grid(None)
+    plt.title(title)
 
+    if file:
+        plt.savefig(file)
     plt.show()
+
+
+def class_count(y, num_classes):
+    counts = np.zeros(num_classes, dtype=np.uint16)
+    for i in y:
+        counts[i] += 1
+
+    return counts

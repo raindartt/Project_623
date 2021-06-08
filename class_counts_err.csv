@@ -1,0 +1,35 @@
+Class Name and Number,,Train,Test,Total,%,RFC err,MNB err,LR err
+Most Favored Nation,0,26,2,28,0.7754%,2,2,2
+Competitive Restriction Exception,1,68,8,76,2.1047%,8,8,8
+Non-Compete,2,107,12,119,3.2955%,,,
+Exclusivity,3,162,18,180,4.9848%,18,18,
+No-Solicit Of Customers,4,31,3,34,0.9416%,3,3,3
+No-Solicit Of Employees,5,53,6,59,1.6339%,,,
+Non-Disparagement,6,34,4,38,1.0523%,4,4,
+Termination For Convenience,7,165,18,183,5.0678%,,,
+Rofr/Rofo/Rofn,8,76,9,85,2.3539%,9,9,
+Change Of Control,9,109,12,121,3.3509%,12,12,
+Anti-Assignment,10,337,37,374,10.3572%,,,
+Revenue/Profit Sharing,11,149,17,166,4.5971%,,,
+Price Restrictions,12,14,1,15,0.4154%,1,1,1
+Minimum Commitment,13,148,17,165,4.5694%,,,
+Volume Restriction,14,74,8,82,2.2708%,8,8,8
+Ip Ownership Assignment,15,112,12,124,3.4340%,,,
+Joint Ip Ownership,16,41,5,46,1.2739%,5,5,
+License Grant,17,229,26,255,7.0618%,,,
+Non-Transferable License,18,125,13,138,3.8217%,13,13,
+Affiliate License-Licensor,19,20,3,23,0.6369%,3,3,3
+Affiliate License-Licensee,20,53,6,59,1.6339%,6,6,6
+Unlimited/All-You-Can-Eat-License,21,16,1,17,0.4708%,1,1,1
+Irrevocable Or Perpetual License,22,63,7,70,1.9385%,7,7,7
+Source Code Escrow,23,11,2,13,0.3600%,2,2,
+Post-Termination Services,24,164,18,182,5.0402%,,,
+Audit Rights,25,193,21,214,5.9263%,,,
+Uncapped Liability,26,100,11,111,3.0739%,11,11,11
+Cap On Liability,27,247,28,275,7.6156%,,,
+Liquidated Damages,28,55,6,61,1.6893%,6,6,6
+Insurance,29,150,16,166,4.5971%,,,
+Covenant Not To Sue,30,90,10,100,2.7693%,,,
+Third Party Beneficiary,31,28,4,32,0.8862%,,,
+Column Sums,,3250,361,3611,100.0000%,119,119,56
+,,,,,test %,0.329639889,0.329639889,0.155124654
